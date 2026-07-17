@@ -19,7 +19,7 @@
             overflow: hidden;
         }
 
-        /* ===== LOGIN (без изменений) ===== */
+        /* ===== LOGIN ===== */
         #login {
             position: fixed;
             top: 0;
@@ -123,7 +123,7 @@
             min-height: 20px;
         }
 
-        /* ===== DESKTOP С КРАСОЧНЫМ ФОНОМ ===== */
+        /* ===== DESKTOP ===== */
         #desktop {
             display: none;
             width: 100vw;
@@ -134,7 +134,7 @@
             overflow: hidden;
         }
 
-        /* Декоративные цветные фигуры (блобсы) */
+        /* Декоративные цветные фигуры */
         #desktop::before {
             content: '';
             position: absolute;
@@ -163,7 +163,6 @@
             z-index: 0;
         }
 
-        /* Дополнительный блоб — можно добавить через дополнительный элемент */
         .blob-extra {
             position: absolute;
             bottom: 10%;
@@ -177,7 +176,6 @@
             z-index: 0;
         }
 
-        /* Элементы рабочего стола должны быть поверх фона */
         .top-bar, .desktop-icons, .dock {
             position: relative;
             z-index: 1;
@@ -205,6 +203,7 @@
             font-weight: 500;
         }
 
+        /* Desktop icons – flex-контейнер без абсолютного позиционирования для мобилок */
         .desktop-icons {
             display: flex;
             flex-wrap: wrap;
@@ -252,43 +251,63 @@
             font-style: italic;
         }
 
+        /* Убираем абсолютное позиционирование для иконок на всех экранах,
+           чтобы они всегда были в потоке и не налезали */
         .desktop-icons .right-icon {
-            position: absolute;
-            right: 30px;
+            position: static !important;
         }
 
+        /* Адаптация для маленьких экранов */
         @media (max-width: 640px) {
             .desktop-icons {
-                gap: 20px;
-                padding: 12px;
+                gap: 12px;
+                padding: 8px;
                 justify-content: center;
             }
             .desktop-folder {
-                width: 100px;
+                width: 80px;
+                padding: 6px;
             }
             .desktop-folder .icon {
-                font-size: 64px;
+                font-size: 44px;
             }
             .desktop-folder .label {
-                font-size: 14px;
-            }
-            .desktop-icons .right-icon {
-                position: static;
-            }
-            #desktop::before {
-                width: 80vmax;
-                height: 80vmax;
-            }
-            #desktop::after {
-                width: 70vmax;
-                height: 70vmax;
-            }
-            .blob-extra {
-                width: 50vmax;
-                height: 50vmax;
+                font-size: 11px;
             }
         }
 
+        @media (max-width: 480px) {
+            .desktop-icons {
+                gap: 8px;
+                padding: 4px;
+            }
+            .desktop-folder {
+                width: 70px;
+                padding: 4px;
+            }
+            .desktop-folder .icon {
+                font-size: 36px;
+            }
+            .desktop-folder .label {
+                font-size: 10px;
+            }
+            .top-bar {
+                font-size: 10px;
+                height: 24px;
+            }
+            .dock {
+                padding: 6px 10px;
+                gap: 6px;
+                bottom: 8px;
+            }
+            .dock-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+        }
+
+        /* ===== DOCK ===== */
         .dock {
             position: fixed;
             bottom: 20px;
@@ -321,19 +340,6 @@
         .dock-icon:hover {
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-4px);
-        }
-
-        @media (max-width: 480px) {
-            .dock {
-                padding: 8px 12px;
-                gap: 8px;
-                bottom: 10px;
-            }
-            .dock-icon {
-                width: 44px;
-                height: 44px;
-                font-size: 20px;
-            }
         }
 
         /* ===== WINDOW ===== */
@@ -377,6 +383,7 @@
                 height: 95vh;
                 max-height: 95vh;
                 border-radius: 12px;
+                padding: 0;
             }
         }
 
@@ -432,6 +439,13 @@
             flex-direction: column;
         }
 
+        @media (max-width: 640px) {
+            .window-body {
+                padding: 12px;
+                font-size: 13px;
+            }
+        }
+
         .window-body .folder-item {
             display: flex;
             align-items: center;
@@ -464,6 +478,7 @@
             color: #ddd;
             cursor: pointer;
             transition: background 0.15s;
+            word-break: break-word;
         }
 
         .window-body .file-item:hover {
@@ -472,6 +487,7 @@
 
         .window-body .file-item .icon {
             font-size: 22px;
+            flex-shrink: 0;
         }
 
         .window-body .file-item .name {
@@ -487,6 +503,7 @@
             padding: 4px 8px;
             border-radius: 4px;
             transition: 0.15s;
+            flex-shrink: 0;
         }
 
         .window-body .file-item .download:hover {
@@ -612,6 +629,68 @@
             white-space: nowrap;
         }
 
+        /* Адаптация почты для телефона */
+        @media (max-width: 640px) {
+            .mail-sidebar {
+                width: 140px;
+            }
+            .mail-sidebar .folder {
+                font-size: 12px;
+                padding: 5px 12px;
+            }
+            .mail-item {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .mail-item .from {
+                min-width: 70px;
+                font-size: 12px;
+            }
+            .mail-item .subject {
+                font-size: 12px;
+                margin: 0 6px;
+            }
+            .mail-item .date {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mail-sidebar {
+                width: 100px;
+                padding: 8px 0;
+            }
+            .mail-sidebar .folder {
+                font-size: 11px;
+                padding: 4px 10px;
+                margin: 0 4px;
+            }
+            .mail-item {
+                padding: 8px 8px;
+                gap: 6px;
+            }
+            .mail-item .from {
+                min-width: 60px;
+                font-size: 11px;
+            }
+            .mail-item .subject {
+                font-size: 11px;
+                margin: 0 4px;
+            }
+            .mail-item .date {
+                font-size: 9px;
+            }
+            .mail-back {
+                font-size: 12px;
+            }
+            .mail-header-item {
+                font-size: 12px;
+            }
+            .mail-body-text {
+                font-size: 13px;
+            }
+        }
+
         .mail-back {
             color: #007aff;
             cursor: pointer;
@@ -660,71 +739,6 @@
             flex: 1;
         }
 
-        @media (max-width: 640px) {
-            .mail-sidebar {
-                width: 140px;
-            }
-            .mail-item .from {
-                min-width: 70px;
-                font-size: 12px;
-            }
-            .mail-item .subject {
-                font-size: 12px;
-                margin: 0 6px;
-            }
-            .mail-item .date {
-                font-size: 10px;
-            }
-            .mail-item {
-                padding: 10px 10px;
-                gap: 8px;
-            }
-            .mail-header-item {
-                font-size: 12px;
-            }
-            .mail-body-text {
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .mail-sidebar {
-                width: 110px;
-                padding: 8px 0;
-            }
-            .mail-sidebar .folder {
-                font-size: 11px;
-                padding: 5px 10px;
-            }
-            .mail-item .from {
-                min-width: 60px;
-                font-size: 11px;
-            }
-            .mail-item .subject {
-                font-size: 11px;
-                margin: 0 4px;
-            }
-            .mail-item .date {
-                font-size: 9px;
-            }
-            .mail-item {
-                padding: 8px 8px;
-                gap: 6px;
-            }
-            .window-body {
-                padding: 8px;
-            }
-            .mail-back {
-                font-size: 12px;
-            }
-            .mail-header-item {
-                font-size: 11px;
-            }
-            .mail-body-text {
-                font-size: 12px;
-            }
-        }
-
         /* scroll */
         .window-body::-webkit-scrollbar,
         #mailContent::-webkit-scrollbar,
@@ -760,16 +774,15 @@
 
     <!-- ===== DESKTOP ===== -->
     <div id="desktop">
-        <!-- Декоративный дополнительный блоб -->
+        <!-- Декоративные блобы -->
         <div class="blob-extra"></div>
 
-        <!-- top bar -->
         <div class="top-bar">
             <span>🔍 Рабочий стол</span>
             <span class="time" id="clock">22:00</span>
         </div>
 
-        <!-- desktop icons -->
+        <!-- desktop icons – теперь без absolute, все в потоке -->
         <div class="desktop-icons">
             <div class="desktop-folder" onclick="openFolder('contracts')">
                 <span class="icon">📁</span>
@@ -781,12 +794,12 @@
                 <span class="label">Завещание</span>
             </div>
 
-            <div class="desktop-folder right-icon" onclick="openFolder('audio')" style="position:absolute; top:40px; right:30px;">
+            <div class="desktop-folder" onclick="openFolder('audio')">
                 <span class="icon">📁</span>
                 <span class="label unnamed">Без названия</span>
             </div>
 
-            <div class="desktop-folder right-icon" onclick="openMail()" style="position:absolute; top:140px; right:30px;">
+            <div class="desktop-folder" onclick="openMail()">
                 <span class="icon">✉️</span>
                 <span class="label">Почта</span>
             </div>
