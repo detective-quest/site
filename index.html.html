@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Рабочий стол</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1e1e1e;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== LOGIN (без изменений) ===== */
+        #login {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2b2b2b, #1a1a1a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 40px 30px;
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+
+        .login-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #007aff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 32px;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
+        }
+
+        .login-box h1 {
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .login-box p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: clamp(13px, 3vw, 16px);
+            margin-bottom: 28px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .login-box input:focus {
+            border-color: #007aff;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .login-box input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 14px;
+            background: #007aff;
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .login-box button:hover {
+            background: #0066d9;
+        }
+
+        .login-error {
+            color: #ff3b30;
+            font-size: 14px;
+            margin-top: 14px;
+            min-height: 20px;
+        }
+
+        /* ===== DESKTOP С КРАСОЧНЫМ ФОНОМ ===== */
+        #desktop {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            position: relative;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        /* Декоративные цветные фигуры (блобсы) */
+        #desktop::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 70vmax;
+            height: 70vmax;
+            background: radial-gradient(circle, rgba(255, 0, 150, 0.4) 0%, rgba(0, 204, 255, 0.2) 60%, transparent 80%);
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #desktop::after {
+            content: '';
+            position: absolute;
+            bottom: -15%;
+            left: -15%;
+            width: 60vmax;
+            height: 60vmax;
+            background: radial-gradient(circle, rgba(0, 255, 200, 0.35) 0%, rgba(255, 100, 0, 0.2) 60%, transparent 80%);
+            border-radius: 50%;
+            filter: blur(140px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Дополнительный блоб — можно добавить через дополнительный элемент */
+        .blob-extra {
+            position: absolute;
+            bottom: 10%;
+            right: 5%;
+            width: 40vmax;
+            height: 40vmax;
+            background: radial-gradient(circle, rgba(255, 200, 0, 0.25) 0%, rgba(255, 100, 200, 0.15) 60%, transparent 80%);
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Элементы рабочего стола должны быть поверх фона */
+        .top-bar, .desktop-icons, .dock {
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background: rgba(30, 30, 30, 0.5);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 50;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .top-bar .time {
+            font-weight: 500;
+        }
+
+        .desktop-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 10px;
+            height: calc(100vh - 120px);
+            align-content: flex-start;
+            justify-content: flex-start;
+            margin-top: 30px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .desktop-folder {
+            width: 90px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 8px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .desktop-folder:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .desktop-folder .icon {
+            font-size: 52px;
+            line-height: 1;
+            display: block;
+        }
+
+        .desktop-folder .label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            margin-top: 4px;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        .desktop-folder .label.unnamed {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+
+        .desktop-icons .right-icon {
+            position: absolute;
+            right: 30px;
+        }
+
+        @media (max-width: 640px) {
+            .desktop-icons {
+                gap: 20px;
+                padding: 12px;
+                justify-content: center;
+            }
+            .desktop-folder {
+                width: 100px;
+            }
+            .desktop-folder .icon {
+                font-size: 64px;
+            }
+            .desktop-folder .label {
+                font-size: 14px;
+            }
+            .desktop-icons .right-icon {
+                position: static;
+            }
+            #desktop::before {
+                width: 80vmax;
+                height: 80vmax;
+            }
+            #desktop::after {
+                width: 70vmax;
+                height: 70vmax;
+            }
+            .blob-extra {
+                width: 50vmax;
+                height: 50vmax;
+            }
+        }
+
+        .dock {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(30px);
+            padding: 10px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .dock-icon {
+            width: 54px;
+            height: 54px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dock-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+
+        @media (max-width: 480px) {
+            .dock {
+                padding: 8px 12px;
+                gap: 8px;
+                bottom: 10px;
+            }
+            .dock-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+        }
+
+        /* ===== WINDOW ===== */
+        .window-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .window-overlay.active {
+            display: flex;
+        }
+
+        .window {
+            width: 95%;
+            max-width: 95vw;
+            height: 90vh;
+            max-height: 90vh;
+            background: #2c2c2e;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        @media (max-width: 640px) {
+            .window {
+                width: 98%;
+                max-width: 98vw;
+                height: 95vh;
+                max-height: 95vh;
+                border-radius: 12px;
+            }
+        }
+
+        .window-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #3a3a3c;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .window-header .title {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 10px;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .window-header .close {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ff5f57;
+            border: none;
+            color: #000;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.15s;
+            flex-shrink: 0;
+        }
+
+        .window-header .close:hover {
+            background: #ff7a72;
+        }
+
+        .window-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            color: #ddd;
+            font-size: 14px;
+            background: #2c2c2e;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .window-body .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.1s;
+            color: #ddd;
+        }
+
+        .window-body .folder-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .window-body .folder-item .icon {
+            font-size: 28px;
+        }
+
+        .window-body .folder-item .name {
+            font-size: 14px;
+        }
+
+        .window-body .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #ddd;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .window-body .file-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .window-body .file-item .icon {
+            font-size: 22px;
+        }
+
+        .window-body .file-item .name {
+            font-size: 13px;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .window-body .file-item .download {
+            margin-left: auto;
+            font-size: 12px;
+            color: #007aff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: 0.15s;
+        }
+
+        .window-body .file-item .download:hover {
+            background: rgba(0, 122, 255, 0.15);
+        }
+
+        .window-body .back-btn {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #aaa;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: 0.1s;
+            align-self: flex-start;
+        }
+
+        .window-body .back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* ===== MAIL ===== */
+        .mail-layout {
+            display: flex;
+            height: 100%;
+            gap: 0;
+            background: #2c2c2e;
+            border-radius: 0 0 16px 16px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .mail-sidebar {
+            width: 180px;
+            background: #262628;
+            padding: 12px 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .mail-sidebar .folder {
+            padding: 6px 16px;
+            color: #aaa;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.1s;
+            border-radius: 6px;
+            margin: 0 6px;
+        }
+
+        .mail-sidebar .folder:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .mail-sidebar .folder.active {
+            background: rgba(0, 122, 255, 0.2);
+            color: #007aff;
+        }
+
+        #mailContent {
+            flex: 1;
+            overflow-y: auto;
+            background: #2c2c2e;
+            padding: 0 8px;
+            min-height: 0;
+        }
+
+        .mail-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 6px;
+            margin: 2px 0;
+        }
+
+        .mail-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .mail-item .status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #007aff;
+            flex-shrink: 0;
+        }
+
+        .mail-item .status.read {
+            background: transparent;
+        }
+
+        .mail-item .from {
+            color: #ddd;
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mail-item .subject {
+            color: #aaa;
+            font-size: 13px;
+            flex: 1;
+            margin: 0 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mail-item .date {
+            color: #666;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .mail-back {
+            color: #007aff;
+            cursor: pointer;
+            font-size: 13px;
+            margin-bottom: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            transition: background 0.15s;
+            align-self: flex-start;
+        }
+
+        .mail-back:hover {
+            background: rgba(0, 122, 255, 0.15);
+            text-decoration: none;
+        }
+
+        .mail-header {
+            color: #ddd;
+        }
+
+        .mail-header-item {
+            color: #ddd;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .mail-header-item strong {
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .mail-header-line {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 8px 0 12px 0;
+            width: 100%;
+        }
+
+        .mail-body-text {
+            margin-top: 12px;
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        @media (max-width: 640px) {
+            .mail-sidebar {
+                width: 140px;
+            }
+            .mail-item .from {
+                min-width: 70px;
+                font-size: 12px;
+            }
+            .mail-item .subject {
+                font-size: 12px;
+                margin: 0 6px;
+            }
+            .mail-item .date {
+                font-size: 10px;
+            }
+            .mail-item {
+                padding: 10px 10px;
+                gap: 8px;
+            }
+            .mail-header-item {
+                font-size: 12px;
+            }
+            .mail-body-text {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mail-sidebar {
+                width: 110px;
+                padding: 8px 0;
+            }
+            .mail-sidebar .folder {
+                font-size: 11px;
+                padding: 5px 10px;
+            }
+            .mail-item .from {
+                min-width: 60px;
+                font-size: 11px;
+            }
+            .mail-item .subject {
+                font-size: 11px;
+                margin: 0 4px;
+            }
+            .mail-item .date {
+                font-size: 9px;
+            }
+            .mail-item {
+                padding: 8px 8px;
+                gap: 6px;
+            }
+            .window-body {
+                padding: 8px;
+            }
+            .mail-back {
+                font-size: 12px;
+            }
+            .mail-header-item {
+                font-size: 11px;
+            }
+            .mail-body-text {
+                font-size: 12px;
+            }
+        }
+
+        /* scroll */
+        .window-body::-webkit-scrollbar,
+        #mailContent::-webkit-scrollbar,
+        .mail-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .window-body::-webkit-scrollbar-track,
+        #mailContent::-webkit-scrollbar-track,
+        .mail-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .window-body::-webkit-scrollbar-thumb,
+        #mailContent::-webkit-scrollbar-thumb,
+        .mail-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOGIN ===== -->
+    <div id="login">
+        <div class="login-box">
+            <div class="login-avatar">👤</div>
+            <h1>Рабочий стол</h1>
+            <p>Введите пароль для входа</p>
+            <input type="password" id="passwordInput" placeholder="Пароль" autocomplete="off">
+            <button onclick="handleLogin()">Войти</button>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <!-- ===== DESKTOP ===== -->
+    <div id="desktop">
+        <!-- Декоративный дополнительный блоб -->
+        <div class="blob-extra"></div>
+
+        <!-- top bar -->
+        <div class="top-bar">
+            <span>🔍 Рабочий стол</span>
+            <span class="time" id="clock">22:00</span>
+        </div>
+
+        <!-- desktop icons -->
+        <div class="desktop-icons">
+            <div class="desktop-folder" onclick="openFolder('contracts')">
+                <span class="icon">📁</span>
+                <span class="label">Договоры</span>
+            </div>
+
+            <div class="desktop-folder" onclick="openFolder('will')">
+                <span class="icon">📁</span>
+                <span class="label">Завещание</span>
+            </div>
+
+            <div class="desktop-folder right-icon" onclick="openFolder('audio')" style="position:absolute; top:40px; right:30px;">
+                <span class="icon">📁</span>
+                <span class="label unnamed">Без названия</span>
+            </div>
+
+            <div class="desktop-folder right-icon" onclick="openMail()" style="position:absolute; top:140px; right:30px;">
+                <span class="icon">✉️</span>
+                <span class="label">Почта</span>
+            </div>
+        </div>
+
+        <!-- dock -->
+        <div class="dock">
+            <div class="dock-icon" onclick="openFolder('contracts')">📁</div>
+            <div class="dock-icon" onclick="openFolder('will')">📄</div>
+            <div class="dock-icon" onclick="openFolder('audio')">🎵</div>
+            <div class="dock-icon" onclick="openMail()">✉️</div>
+        </div>
+    </div>
+
+    <!-- ===== WINDOW OVERLAY ===== -->
+    <div class="window-overlay" id="windowOverlay">
+        <div class="window" id="window">
+            <div class="window-header">
+                <button class="close" onclick="closeWindow()">✕</button>
+                <span class="title" id="windowTitle">Папка</span>
+            </div>
+            <div class="window-body" id="windowBody">
+                <!-- dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== LOGIN =====
+        function handleLogin() {
+            const password = document.getElementById('passwordInput').value.trim();
+            const err = document.getElementById('loginError');
+            if (password === '1408569432!') {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('desktop').style.display = 'block';
+                updateClock();
+                setInterval(updateClock, 1000);
+            } else {
+                err.textContent = 'Неверный пароль';
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const loginDiv = document.getElementById('login');
+                if (loginDiv.style.display !== 'none') {
+                    handleLogin();
+                }
+            }
+        });
+
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').textContent = h + ':' + m;
+        }
+
+        // ===== WINDOW =====
+        function closeWindow() {
+            document.getElementById('windowOverlay').classList.remove('active');
+        }
+
+        function openWindow(title, html) {
+            document.getElementById('windowTitle').textContent = title;
+            document.getElementById('windowBody').innerHTML = html;
+            document.getElementById('windowOverlay').classList.add('active');
+        }
+
+        // ===== FOLDERS =====
+        const fileSystem = {
+            contracts: {
+                type: 'folder',
+                children: {
+                    '2023': {
+                        type: 'folder',
+                        children: {
+                            'Договор_АльянсМед_2023.pdf': { type: 'file', path: 'docs/Договор_АльянсМед_2023.pdf' }
+                        }
+                    },
+                    '2024': {
+                        type: 'folder',
+                        children: {
+                            'Договор_МедТехСнаб_2024.pdf': { type: 'file', path: 'docs/Договор_МедТехСнаб_2024.pdf' },
+                            'Договор_ФармЛог_2024.pdf': { type: 'file', path: 'docs/Договор_ФармЛог_2024.pdf' }
+                        }
+                    },
+                    '2025': {
+                        type: 'folder',
+                        children: {
+                            'Договор_МедТехн_2025.pdf': { type: 'file', path: 'docs/Договор_МедТехн_2025.pdf' }
+                        }
+                    }
+                }
+            },
+            will: {
+                type: 'folder',
+                children: {
+                    'Завещание.pdf': { type: 'file', path: 'docs/Завещание.pdf' }
+                }
+            },
+            audio: {
+                type: 'folder',
+                children: {
+                    'аудио_василий.mp3': { type: 'file', path: 'audio/аудио_василий.mp3' }
+                }
+            }
+        };
+
+        function openFolder(id) {
+            if (id === 'audio') {
+                const folder = fileSystem.audio;
+                let html = renderFolder(id, folder);
+                openWindow('Без названия', html);
+                return;
+            }
+            const folder = fileSystem[id];
+            if (!folder) return;
+            let html = renderFolder(id, folder);
+            const title = id === 'contracts' ? 'Договоры' : id === 'will' ? 'Завещание' : 'Папка';
+            openWindow(title, html);
+        }
+
+        function renderFolder(id, folder, path = []) {
+            const entries = Object.entries(folder.children || {});
+            if (entries.length === 0) {
+                return '<div style="color:#666;padding:20px;">Папка пуста</div>';
+            }
+
+            let html = '';
+            if (path.length > 0) {
+                const backPath = path.slice(0, -1);
+                html += `<div class="back-btn" onclick="navigateBack('${id}', '${backPath.join('/')}')">← Назад</div>`;
+            }
+
+            for (const [name, item] of entries) {
+                if (item.type === 'folder') {
+                    html += `
+                        <div class="folder-item" onclick="navigateFolder('${id}', '${name}', '${path.join('/')}')">
+                            <span class="icon">📁</span>
+                            <span class="name">${name}</span>
+                        </div>
+                    `;
+                } else {
+                    const filePath = item.path;
+                    html += `
+                        <div class="file-item" onclick="window.open('${filePath}', '_blank')">
+                            <span class="icon">📄</span>
+                            <span class="name">${name}</span>
+                            <span class="download" onclick="event.stopPropagation(); window.open('${filePath}', '_blank')">⬇</span>
+                        </div>
+                    `;
+                }
+            }
+            return html;
+        }
+
+        function navigateFolder(id, childName, currentPath) {
+            const folder = fileSystem[id];
+            const pathSegments = currentPath ? currentPath.split('/').filter(Boolean) : [];
+            const newPath = [...pathSegments, childName];
+
+            let current = folder;
+            for (const seg of newPath) {
+                if (current.children && current.children[seg]) {
+                    current = current.children[seg];
+                } else {
+                    return;
+                }
+            }
+            if (current.type === 'folder') {
+                const html = renderFolder(id, current, newPath);
+                openWindow('Договоры', html);
+            }
+        }
+
+        function navigateBack(id, backPathStr) {
+            const folder = fileSystem[id];
+            const pathSegments = backPathStr ? backPathStr.split('/').filter(Boolean) : [];
+            let current = folder;
+            for (const seg of pathSegments) {
+                if (current.children && current.children[seg]) {
+                    current = current.children[seg];
+                } else {
+                    return;
+                }
+            }
+            const html = renderFolder(id, current, pathSegments);
+            openWindow('Договоры', html);
+        }
+
+        // ===== MAIL =====
+        const allMails = [
+            { from: 'noreply@google.com', subject: 'Подтверждение аккаунта', date: '01.12.2025', body: 'Здравствуйте! Подтвердите ваш адрес электронной почты.' },
+            { from: 'mail@yandex.ru', subject: 'Ваша посылка готова к выдаче', date: '02.12.2025', body: 'Уважаемый клиент, ваша посылка прибыла в пункт выдачи.' },
+            { from: 'info@ozon.ru', subject: 'Скидка 20% на следующую покупку', date: '03.12.2025', body: 'Специальное предложение для вас — скидка 20% на заказ от 5000 руб.' },
+            { from: 'no-reply@vk.com', subject: 'Новый комментарий', date: '04.12.2025', body: 'Пользователь оставил комментарий под вашим постом.' },
+            { from: 'support@apple.com', subject: 'Ваш Apple ID требуется обновить', date: '05.12.2025', body: 'Для безопасности войдите в аккаунт и подтвердите данные.' },
+            { from: 'job@hh.ru', subject: 'Новые вакансии', date: '06.12.2025', body: 'Подборка новых вакансий в сфере медицины.' },
+            { from: 'noreply@delivery.ru', subject: 'Ваш заказ доставлен', date: '07.12.2025', body: 'Ваш заказ успешно доставлен по адресу.' },
+            { from: 'info@bank.ru', subject: 'Выписка по счету за ноябрь', date: '08.12.2025', body: 'Предоставляем выписку по вашему банковскому счету.' },
+            { from: 'support@telegram.org', subject: 'Вход в Telegram', date: '09.12.2025', body: 'Зафиксирован вход в ваш аккаунт с нового устройства.' },
+            { from: 'news@ria.ru', subject: 'Главные новости дня', date: '10.12.2025', body: 'Сводка главных событий в России и мире.' },
+            { from: 'noreply@avito.ru', subject: 'Новое сообщение в чате', date: '11.12.2025', body: 'Вам пришло сообщение по объявлению.' },
+            { from: 'info@wildberries.ru', subject: 'Возврат средств', date: '12.12.2025', body: 'Денежные средства возвращены на вашу карту.' },
+            { from: 'noreply@mail.ru', subject: 'Календарь на декабрь', date: '13.12.2025', body: 'Обновите ваш календарь событий.' },
+            { from: 'support@google.com', subject: 'Уведомление о конфиденциальности', date: '14.12.2025', body: 'Обновлены условия обработки данных.' },
+            {
+                from: 'неизвестен',
+                subject: 'Ты знаешь о чем я',
+                date: '15.10.2025',
+                body: 'Ты думал, что все будет отлично? Семья, красивая жена, дети. Но я знаю кто ты и что ты такое, все знаю. Рано или поздно правда выйдет наружу. И тогда ты ответишь за все. Никто тебе не поможет, твое время сочтено. Ходи и оглядывайся, мразь. Либо выйди со мной на связь и возможно – мы договоримся.'
+            },
+            {
+                from: 'неизвестен',
+                subject: 'Я слежу',
+                date: '17.11.2025',
+                body: 'Молчишь, да? Боишься, я вижу. Ты даже не представляешь, кто за тобой наблюдает. Ходишь, улыбаешься, строишь из себя важную птицу. Хорошая речь была на твоем последнем выступлении, про помощь пациентам и любовь к жизни. Как это все смешно. Скоро придет время, и все узнают кто ты такой. А в первую очередь – твоя дорогая жена и дети. Последний шанс. Жду тебя 27.11.2025г. в 23:35 в парке около клиники. Одного и без охраны. Поговорим наедине и, возможно, сможем договориться.'
+            },
+            {
+                from: 'неизвестен',
+                subject: 'Боишься?',
+                date: '28.11.2025',
+                body: 'Ты все же решил не приходить в парк. Не отвечаешь на мои сообщения. Я знаю, что ты их видишь. Они все прочитаны. Ну что же, тебе от этого хуже. Ты совершил огромную ошибку. Я не прощаю и не забываю. Твое время подходит к концу. Я отомщу за все. Очень скоро. Если не свяжешься со мной в ближайшие 10 дней – я перейду от слов к делу.'
+            },
+            {
+                from: 'Б.',
+                subject: 'Без темы',
+                date: '15.10.2025',
+                body: 'Вася, привет.\nСлушай, до меня дошли слухи, что ты последнее время стал задумчивый и что-то там себе надумываешь. Ты же умный человек, не надо лишнего. Договоренности — они на то и договоренности, чтобы их соблюдать. Мы с тобой давно работаем, я всегда относился к тебе с уважением. Но если ты решил, что можешь менять правила в одностороннем порядке, то это плохая идея.\nТы меня знаешь, я лишнего не говорю и не люблю, когда меня подводят. У нас с тобой общее дело, и от него зависит многое. Не надо ничего усложнять. Подумай хорошенько, прежде чем принимать решения.\nЖду от тебя понимания. Иначе придется искать другие варианты, а они могут быть неудобны для всех.\nБ.'
+            },
+            {
+                from: 'Б.',
+                subject: 'Важно',
+                date: '20.11.2025',
+                body: 'Василий, я слышал, ты здоровьем сдал. Жаль, конечно. Но бизнес — это бизнес, он не ждет, пока мы выздоровеем.\nЯ за свои слова отвечаю и от своих обязательств не отказываюсь. Но если ты перестаешь справляться, мне нужно быть уверенным, что все останется как есть. Не хочу, чтобы наши дела развалились из-за чьей-то слабости. Ты сам понимаешь, что в нашей сфере слабых не любят. Вокруг много желающих занять твое место.\nПодумай, как нам красиво выйти из ситуации, чтобы все остались при своих. Я не враг тебе, но и терпеть неопределенность не буду.\nРешай быстрее, время не ждет.\nБ.'
+            },
+            {
+                from: 'Б.',
+                subject: 'Без темы',
+                date: '05.12.2025',
+                body: 'Вася, я тебе уже два раза писал. Ты не отвечаешь. Это меня настораживает.\nЯ не люблю, когда игнорируют. У нас с тобой были договоренности, я вложился, я обеспечивал порядок. Если ты решил уйти в тень, ты должен меня предупредить. Иначе мне придется принимать меры, чтобы защитить свои интересы. Ты же понимаешь, что я не могу потерять то, что строил годами.\nТвои последние действия (вернее, бездействие) начинают меня нервировать. Я человек спокойный, но когда меня доводят, последствия могут быть непредсказуемыми.\nСвяжись со мной в ближайшие три дня. Если нет — я сделаю выводы сам и начну действовать без тебя. Это не угроза, это деловой подход.\nБ.'
+            }
+        ];
+
+        function parseDate(str) {
+            const parts = str.split('.');
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+
+        function sortMails(mails) {
+            return mails.slice().sort((a, b) => parseDate(b.date) - parseDate(a.date));
+        }
+
+        const mailFolders = {
+            inbox: sortMails(allMails),
+            sent: [],
+            spam: [],
+            draft: [],
+            trash: []
+        };
+
+        mailFolders.sent = [
+            { from: 'Кузнецов В.А.', subject: 'Договор поставки', date: '01.11.2025', body: 'Отправил исправленный проект договора. Жду ваши правки.' }
+        ];
+        mailFolders.spam = [
+            { from: 'incognito@mail.ru', subject: 'Вы выиграли миллион!', date: '01.12.2025', body: 'Поздравляем! Вы выиграли главный приз! Перейдите по ссылке.' },
+            { from: 'lotto@fake.com', subject: 'Заберите приз!', date: '02.12.2025', body: 'Ваш билет выиграл! Спешите забрать!' }
+        ];
+
+        let currentMailList = mailFolders.inbox;
+
+        function openMail() {
+            currentMailFolder = 'inbox';
+            currentMailList = mailFolders.inbox;
+            const html = buildMailHtml();
+            openWindow('Почта', html);
+        }
+
+        function buildMailHtml() {
+            return `
+                <div class="mail-layout">
+                    <div class="mail-sidebar">
+                        <div class="folder active" data-folder="inbox" onclick="switchMailFolder('inbox')">📥 Входящие (${mailFolders.inbox.length})</div>
+                        <div class="folder" data-folder="sent" onclick="switchMailFolder('sent')">📤 Отправленные (${mailFolders.sent.length})</div>
+                        <div class="folder" data-folder="spam" onclick="switchMailFolder('spam')">⚠️ Спам (${mailFolders.spam.length})</div>
+                        <div class="folder" data-folder="draft" onclick="switchMailFolder('draft')">📝 Черновики (${mailFolders.draft.length})</div>
+                        <div class="folder" data-folder="trash" onclick="switchMailFolder('trash')">🗑 Корзина (${mailFolders.trash.length})</div>
+                    </div>
+                    <div id="mailContent">
+                        ${renderMailListContent()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMailListContent() {
+            if (!currentMailList || currentMailList.length === 0) {
+                return '<div style="padding:20px;color:#666;">Нет писем</div>';
+            }
+            let html = '';
+            for (let i = 0; i < currentMailList.length; i++) {
+                const m = currentMailList[i];
+                const isSpecial = (m.from === 'неизвестен' || m.from === 'Б.');
+                const statusClass = isSpecial ? '' : 'read';
+                html += `
+                    <div class="mail-item" onclick="openMailItem(${i})">
+                        <span class="status ${statusClass}"></span>
+                        <span class="from">${m.from}</span>
+                        <span class="subject">${m.subject}</span>
+                        <span class="date">${m.date}</span>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        function renderMailList() {
+            const content = document.getElementById('mailContent');
+            if (content) {
+                content.innerHTML = renderMailListContent();
+            }
+        }
+
+        function switchMailFolder(folder) {
+            currentMailFolder = folder;
+            switch (folder) {
+                case 'inbox': currentMailList = mailFolders.inbox; break;
+                case 'sent': currentMailList = mailFolders.sent; break;
+                case 'spam': currentMailList = mailFolders.spam; break;
+                case 'draft': currentMailList = mailFolders.draft; break;
+                case 'trash': currentMailList = mailFolders.trash; break;
+                default: currentMailList = mailFolders.inbox;
+            }
+            document.querySelectorAll('.folder').forEach(el => el.classList.remove('active'));
+            const active = document.querySelector(`.folder[data-folder="${folder}"]`);
+            if (active) active.classList.add('active');
+            renderMailList();
+        }
+
+        function openMailItem(index) {
+            const item = currentMailList[index];
+            if (!item) return;
+            const html = `
+                <div style="padding:16px; height:100%; display:flex; flex-direction:column;">
+                    <div class="mail-back" onclick="renderMailList();">← Назад к письмам</div>
+                    <div class="mail-header">
+                        <div class="mail-header-item"><strong>От:</strong> ${item.from}</div>
+                        <div class="mail-header-item"><strong>Тема:</strong> ${item.subject}</div>
+                        <div class="mail-header-item"><strong>Дата:</strong> ${item.date}</div>
+                    </div>
+                    <div class="mail-header-line"></div>
+                    <div class="mail-body-text">${item.body}</div>
+                </div>
+            `;
+            const content = document.getElementById('mailContent');
+            if (content) {
+                content.innerHTML = html;
+            }
+        }
+    </script>
+</body>
+</html>
